@@ -210,7 +210,7 @@ body {
     padding: 5px 0;
     cursor: pointer;
     background: #b1bfda;
-    font-weight: 700;
+    font-size: 16px;
     transition: background .15s, color .15s;
     white-space: nowrap;
     user-select: none;
@@ -225,7 +225,7 @@ body {
 .toggle-caixa input[type="radio"]:checked + label {
     background: #4c91f0;
     color: #fff;
-    font-weight: 700;
+    /* font-weight: 700; */
 }
 
 /* BADGE DE UNIDADE */
