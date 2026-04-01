@@ -5,7 +5,475 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestão Financeira Yaya</title>
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="style.css">
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <style>
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #f0f2f5; 
+            color: #333; 
+            font-size: 14px; 
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 16px; 
+        }
+
+        /* HEADER */
+        .header-app { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 16px; 
+            background: #fff; 
+            border-radius: 12px; 
+            padding: 14px 20px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+        }
+
+        .logo-area img { 
+            height: 48px; 
+        }
+
+        /* SECTION */
+        .section { 
+            background: #fff; 
+            border-radius: 12px; 
+            padding: 16px 20px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07); 
+        }
+
+        .section strong { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-size: 13px; 
+            color: #555; 
+            text-transform: uppercase; 
+            letter-spacing: .5px; 
+        }
+
+        /* GRID FORM */
+        .grid-form { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 10px; 
+        }
+
+        .grid-form input, 
+        .grid-form select { 
+            padding: 9px 12px; 
+            border: 1.5px solid #dde1e7; 
+            border-radius: 8px; 
+            font-size: 13px; 
+            outline: none; 
+            transition: border-color .2s; 
+            width: 100%; 
+        }
+
+        .grid-form input:focus, .grid-form select:focus { 
+            border-color: #4c91f0; 
+        }
+
+        /* DASHBOARD */
+        .dashboard { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px; 
+            margin-bottom: 16px; 
+        }
+
+        .card { 
+            border-radius: 12px; 
+            padding: 18px 22px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: .4px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); 
+            color: #fff; 
+        }
+
+        .card span { 
+            font-size: 22px; 
+            font-weight: 700; 
+        }
+
+        .card.devo { 
+            background: linear-gradient(135deg, #e74c3c, #c0392b); 
+        }
+
+        .card.receber { 
+            background: linear-gradient(135deg, #27ae60, #1e8449); 
+        }
+
+        /* PRODUTOS */
+        .produtos-section { 
+            background: #fff; 
+            border-radius: 12px; 
+            padding: 16px 20px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07); 
+        }
+
+        .produtos-section .sec-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 14px; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+        }
+
+        .btn-add-produto { 
+            background: #4c91f0; 
+            color: #fff; 
+            border: none; 
+            border-radius: 7px; 
+            padding: 6px 14px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            transition: background .2s; 
+        }
+
+        .produtos-lista { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+        }
+
+        .produto-row { 
+            display: grid; 
+            grid-template-columns: 28px 1.5fr 60px 120px 100px 28px; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 8px 10px; 
+            border: 1.5px solid #eef0f4; 
+            border-radius: 9px; 
+            transition: background .15s, border-color .15s; 
+        }
+
+        .produto-row.selecionado { 
+            background: #eef6ff; 
+            border-color: #b0d0f8; 
+        }
+
+        .produto-nome { 
+            font-weight: 600; 
+            font-size: 13px; 
+        }
+
+        .input-qtd { 
+            width: 100%; 
+            padding: 5px; 
+            border: 1.5px solid #dde1e7; 
+            border-radius: 6px; 
+            text-align: center; 
+            font-size: 12px; 
+        }
+
+        .toggle-caixa { 
+            display: flex; 
+            border: 1.5px solid #dde1e7; 
+            border-radius: 7px; 
+            overflow: hidden; 
+            font-size: 12px; 
+        }
+
+        .toggle-caixa label { 
+            flex: 1;
+            text-align: center;
+            padding: 5px 0; 
+            cursor: pointer; 
+            background: #f5f6f8; 
+            transition: background .15s, color .15s; 
+            white-space: nowrap; 
+            user-select: none; 
+        }
+
+        .toggle-caixa input[type="radio"] { 
+            display: none; 
+        }
+
+        .toggle-caixa input[type="radio"]:checked + label { 
+            background: #4c91f0; color: #fff; 
+            font-weight: 700; 
+        }
+
+        .badge-unidade { 
+            font-size: 11px; 
+            background: #e8f0fe; 
+            color: #4c91f0; 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            text-align: center; 
+        }
+
+        .produto-valor-input { 
+            padding: 6px 10px; 
+            border: 1.5px solid #dde1e7; 
+            border-radius: 7px; 
+            font-size: 13px; 
+            text-align: right; 
+            width: 100%; 
+            outline: none; 
+        }
+
+        .btn-rem-produto { 
+            background: none; 
+            border: none; 
+            color: #E74C3C; 
+            font-size: 20px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+
+        .total-produtos-bar { 
+            margin-top: 12px; 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px 14px; 
+            background: #f4f7ff; 
+            border-radius: 9px; 
+            border: 1.5px solid #dbe5fd; 
+        }
+
+        .total-produtos-bar strong { 
+            font-size: 16px; 
+            color: #2176e0; 
+        }
+
+        /* BOTÕES PRINCIPAIS */
+        .btn-add { 
+            margin-top: 12px; 
+            width: 100%; 
+            padding: 12px; 
+            background: linear-gradient(135deg, #27ae60, #1e8449); 
+            color: #fff; 
+            border: none; 
+            border-radius: 9px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+        }
+
+        .export-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            margin: 16px 0; 
+        }
+
+        .btn-export { 
+            padding: 13px; 
+            background: linear-gradient(135deg, #4c91f0, #2176e0); 
+            color: #fff; 
+            border: none; 
+            border-radius: 9px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            cursor: pointer; 
+        }
+
+        .btn-export.pdf { 
+            background: linear-gradient(135deg, #e67e22, #d35400); 
+        }
+
+        /* TABELAS */
+        .table-wrap { 
+            background: #fff; 
+            border-radius: 12px; 
+            overflow-x: auto; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07); 
+            margin-bottom: 10px; 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+        }
+
+        th { 
+            background: #cfcece; 
+            padding: 11px 13px; 
+            text-align: left; 
+            color: #020202; 
+            border-bottom: 1.5px solid #eee; 
+            font-size: 12px; 
+
+        }
+
+        td { 
+            padding: 10px 13px; 
+            border-bottom: 1px solid #f0f0f0; 
+            font-size: 13px; 
+        }
+
+        .btn-pay, .btn-del { 
+            border: none; 
+            border-radius: 6px; 
+            padding: 5px 11px; 
+            cursor: pointer; 
+            color: #fff; 
+            font-size: 12px; 
+            margin-right: 5px; 
+        }
+
+        .btn-pay { 
+            background: #27ae60; 
+        }
+
+        .btn-del { 
+            background: #e74c3c; 
+        }
+
+        .btn-del.estornar { 
+            background: #27ae60; 
+        }
+
+        /* MODAL */
+        .modal-overlay { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,.45); 
+            z-index: 999; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .modal-overlay.aberto { 
+            display: flex; 
+        }
+
+        .modal-box { 
+            background: #fff; 
+            border-radius: 14px; 
+            padding: 24px; 
+            width: 340px; 
+        }
+
+        h3 {
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* MOBILE ADJUSTMENTS */
+        @media (max-width: 600px) {
+            .dashboard { 
+                grid-template-columns: 1fr; 
+            }
+
+            .produto-row { 
+                display: grid;
+                grid-template-columns: 60px 1fr 1fr 30px;
+                grid-template-rows: auto auto;
+                gap: 12px 8px;
+                padding: 15px;
+                align-items: center;
+                /* grid-template-columns: repeat(3, 1fr); 
+                gap: 10px; 
+                padding: 15px; 
+                text-align: center; */
+            }
+
+            .produto-row input[type="checkbox"] {
+                grid-column: 1;
+                grid-row: 1;
+                justify-self: start;
+            }
+
+            .produto-row .produto-nome {
+                grid-column: 2 / span 3;
+                grid-row: 1;
+                text-align: left;
+                font-size: 14px;
+                margin-left: -45px;
+            }
+
+            .produto-row .input-qtd {
+                grid-row: 2;
+                grid-column: 1;
+            }
+
+            /* Garante que os controles fiquem na segunda linha */
+            .produto-row .toggle-caixa,
+            .produto-row .badge-unidade {
+                grid-row: 2;
+                grid-column: 2;
+            }
+
+            .produto-row .produto-valor-input {
+                grid-row: 2;
+                grid-column: 3;
+            }
+
+            .produto-row .btn-rem-produto {
+                grid-row: 2;
+                grid-column: 4;
+            }
+
+            /* Ajuste visual para os inputs ficarem arredondados como no desenho */
+            .input-qtd,
+            .produto-valor-input,
+            .toggle-caixa {
+                border-radius: 20px;
+                height: 35px;
+                display: flex;
+                /* align-items: stretch; */
+                justify-content: center;
+            }
+
+            .btn-del.estornar,
+            .btn-pay { 
+                margin-bottom: 8px; 
+            }
+        }
+
+        @media print {
+            .btn-add, 
+            .btn-export, 
+            .produtos-section, 
+            .section, 
+            .header-app, 
+            .btn-add-produto, 
+            th:last-child, 
+            td:last-child { 
+                display: none !important; 
+            }
+
+            body { 
+                background: white; 
+            }
+
+            .container { 
+                max-width: 100%; 
+            }
+
+            h3 { 
+                margin-top: 30px; 
+                border-bottom: 2px solid #333; 
+                padding-bottom: 5px; 
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -71,7 +539,13 @@
         <table id="tabelaPendentes">
             <thead>
                 <tr>
-                    <th>Data</th><th>Status</th><th>Pessoa</th><th>Motivo (Produtos)</th><th>Total</th><th>Falta</th><th>Ações</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Pessoa</th>
+                    <th>Motivo (Produtos)</th>
+                    <th>Total</th
+                    ><th>Falta</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -83,7 +557,12 @@
         <table id="tabelaPagas">
             <thead>
                 <tr>
-                    <th>Status</th><th>Pessoa</th><th>Motivo</th><th>Valor Pago</th><th>Data</th><th>Ações</th>
+                    <th>Status</th>
+                    <th>Pessoa</th>
+                    <th>Motivo</th>
+                    <th>Valor Pago</th>
+                    <th>Data</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>

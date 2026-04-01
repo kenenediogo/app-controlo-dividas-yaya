@@ -218,8 +218,8 @@ body {
     border-radius: 7px; 
     font-size: 13px; 
     text-align: right; 
-    width: 100%; o
-    utline: none; 
+    width: 100%; 
+    outline: none; 
 }
 
 .btn-rem-produto { 
@@ -299,12 +299,13 @@ table {
 }
 
 th { 
-    background: #f5f7fa; 
+    background: #cfcece; 
     padding: 11px 13px; 
     text-align: left; 
-    color: #777; 
+    color: #020202; 
     border-bottom: 1.5px solid #eee; 
     font-size: 12px; 
+
 }
 
 td { 
