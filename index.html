@@ -34,6 +34,7 @@
     <div class="dashboard">
         <div class="card devo">Total a Pagar<span id="saldoDevo">0 AKZ</span></div>
         <div class="card receber">Total a Receber<span id="saldoReceber">0 AKZ</span></div>
+        <div class="card recebido">Total Recebido<span id="saldoRecebido">0 AKZ</span></div>
     </div>
 
     <div class="section">
@@ -63,7 +64,10 @@
     </div>
 
     <div class="section" style="padding-top:4px;">
-        <button class="btn-add" onclick="adicionarRegisto()">REGISTAR LANÇAMENTO</button>
+        <button 
+        class="btn-add" 
+        onclick="adicionarRegisto()">REGISTAR LANÇAMENTO  
+        </button>
     </div>
 
     <h3>⏳ PENDENTES</h3>
@@ -71,7 +75,13 @@
         <table id="tabelaPendentes">
             <thead>
                 <tr>
-                    <th>Data</th><th>Status</th><th>Pessoa</th><th>Motivo (Produtos)</th><th>Total</th><th>Falta</th><th>Ações</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Pessoa</th>
+                    <th>Produtos</th>
+                    <th>Total</th>
+                    <th>Falta</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -83,7 +93,12 @@
         <table id="tabelaPagas">
             <thead>
                 <tr>
-                    <th>Status</th><th>Pessoa</th><th>Motivo</th><th>Valor Pago</th><th>Data do Mov.</th><th>Ações</th>
+                    <th>Status</th>
+                    <th>Pessoa</th>
+                    <th>Produtos</th>
+                    <th>Valor Pago</th>
+                    <th>Data do Mov.</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -95,7 +110,7 @@
         <button class="btn-export pdf" onclick="window.print()">📄 EXPORTAR PDF</button>
     </div>
 
-    <footer style="text-align: center; color: #aaa; font-size: 12px; padding: 20px;">
+    <footer style="text-align: center; color: #ffffff; font-size: 14px; padding: 20px;">
         <p>&copy; 2026 <strong>kd.tech</strong>. Todos os direitos reservados.</p>
     </footer>
 </div>
@@ -117,231 +132,234 @@
 </div>
 
 <script>
-let finance_db = JSON.parse(localStorage.getItem('finance_kd_v4')) || [];
-let produtos_db = JSON.parse(localStorage.getItem('produtos_yaya')) || [
-    { id: 1, nome: "Maçã",             tipo: "caixa",   valor: 23000 },
-    { id: 2, nome: "Uva",              tipo: "caixa",   valor: 30000 },
-    { id: 3, nome: "Pera",             tipo: "caixa",   valor: 23000 },
-    { id: 4, nome: "Laranja",          tipo: "caixa",   valor: 30000 },
-    { id: 5, nome: "Ameixa",           tipo: "caixa",   valor: 25000 },
-    { id: 6, nome: "Tangerina",        tipo: "caixa",   valor: 25000 },
-    { id: 7, nome: "Iogurte Pequeno",  tipo: "unidade", valor: 2500  },
-    { id: 8, nome: "Iogurte Grande",   tipo: "unidade", valor: 7500  },
-    { id: 9, nome: "Papa",             tipo: "unidade", valor: 4000  },
-    { id:10, nome: "Space",            tipo: "unidade", valor: 7500  },
-    { id:11, nome: "Temperos Normais", tipo: "unidade", valor: 6000  },
-];
+    let finance_db = JSON.parse(localStorage.getItem('finance_kd_v4')) || [];
+    let produtos_db = JSON.parse(localStorage.getItem('produtos_yaya')) || [
+        { id: 1, nome: "Maçã",             tipo: "caixa",   valor: 23000 },
+        { id: 2, nome: "Uva",              tipo: "caixa",   valor: 30000 },
+        { id: 3, nome: "Pera",             tipo: "caixa",   valor: 23000 },
+        { id: 4, nome: "Laranja",          tipo: "caixa",   valor: 30000 },
+        { id: 5, nome: "Ameixa",           tipo: "caixa",   valor: 25000 },
+        { id: 6, nome: "Tangerina",        tipo: "caixa",   valor: 25000 },
+        { id: 7, nome: "Iogurte Pequeno",  tipo: "unidade", valor: 2500  },
+        { id: 8, nome: "Iogurte Grande",   tipo: "unidade", valor: 7500  },
+        { id: 9, nome: "Papa",             tipo: "unidade", valor: 4000  },
+        { id:10, nome: "Space",            tipo: "unidade", valor: 7500  },
+        { id:11, nome: "Temperos Normais", tipo: "unidade", valor: 6000  },
+        { id:12, nome: "Manteiga",         tipo: "unidade", valor: 8500  },
+    ];
 
-document.getElementById('data').valueAsDate = new Date();
+    document.getElementById('data').valueAsDate = new Date();
 
-function renderizarProdutos() {
-    const lista = document.getElementById('produtosLista');
-    lista.innerHTML = '';
-    produtos_db.forEach(p => {
-        const row = document.createElement('div');
-        row.className = 'produto-row';
-        row.id = `row-${p.id}`;
-        const isCaixa = p.tipo === 'caixa';
-        row.innerHTML = `
-            <input type="checkbox" id="chk-${p.id}" onchange="onProdutoCheck(${p.id})">
-            <span class="produto-nome">${p.nome}</span>
-            <input type="number" class="input-qtd" id="qtd-${p.id}" value="1" min="1" oninput="recalcularTotal()">
-            ${isCaixa ? `
-                <div class="toggle-caixa">
-                    <input type="radio" name="mod-${p.id}" id="inteira-${p.id}" value="1" checked onchange="recalcularTotal()">
-                    <label for="inteira-${p.id}">Cx</label>
-                    <input type="radio" name="mod-${p.id}" id="meia-${p.id}" value="0.5" onchange="recalcularTotal()">
-                    <label for="meia-${p.id}">½</label>
-                </div>
-            ` : `<span class="badge-unidade">Unid</span>`}
-            <input type="number" class="produto-valor-input" id="val-${p.id}" value="${p.valor}" oninput="recalcularTotal()">
-            <button class="btn-rem-produto" onclick="removerProduto(${p.id})">×</button>
-        `;
-        lista.appendChild(row);
-    });
-    recalcularTotal();
-}
-
-function onProdutoCheck(id) {
-    const row = document.getElementById(`row-${id}`);
-    const chk = document.getElementById(`chk-${id}`);
-    chk.checked ? row.classList.add('selecionado') : row.classList.remove('selecionado');
-    recalcularTotal();
-}
-
-function recalcularTotal() {
-    let soma = 0;
-    produtos_db.forEach(p => {
-        const chk = document.getElementById(`chk-${p.id}`);
-        if (chk && chk.checked) {
-            const qtd = parseFloat(document.getElementById(`qtd-${p.id}`).value) || 0;
-            const val = parseFloat(document.getElementById(`val-${p.id}`).value) || 0;
-            let mult = 1;
-            if (p.tipo === 'caixa') mult = document.getElementById(`meia-${p.id}`).checked ? 0.5 : 1;
-            soma += (qtd * (val * mult));
-        }
-    });
-    const extra = parseFloat(document.getElementById('valorExtra').value) || 0;
-    const totalFinal = soma + extra;
-    document.getElementById('totalProdutos').textContent = formatarKz(totalFinal);
-    return totalFinal;
-}
-
-function adicionarRegisto() {
-    const total = recalcularTotal();
-    let prodSel = [];
-    produtos_db.forEach(p => {
-        const chk = document.getElementById(`chk-${p.id}`);
-        if (chk && chk.checked) {
-            const qtd = document.getElementById(`qtd-${p.id}`).value;
-            const tDesc = (p.tipo === 'caixa' && document.getElementById(`meia-${p.id}`).checked) ? "½ Cx" : (p.tipo === 'caixa' ? "Cx" : "Un");
-            prodSel.push(`${qtd}${tDesc} ${p.nome}`);
-        }
-    });
-    const mManual = document.getElementById('motivo').value.trim();
-    const mConcatenado = prodSel.join(', ') + (mManual ? " | " + mManual : "");
-
-    const item = {
-        id: Date.now(),
-        tipo: document.getElementById('tipo').value,
-        pessoa: document.getElementById('pessoa').value,
-        valor: total,
-        restante: total,
-        data: document.getElementById('data').value,
-        motivo: mConcatenado,
-        concluido: false,
-        isParcela: false
-    };
-
-    if (!item.pessoa || total <= 0) return alert("Preencha Pessoa e selecione produtos!");
-    finance_db.push(item);
-    salvarEDesenhar();
-    limparForm();
-}
-
-// LOGICA DE PAGAMENTO PARCELADO (ESTRUTURA DE REGISTOS INDIVIDUAIS NO HISTÓRICO)
-function realizarPagamento(id) {
-    const idx = finance_db.findIndex(i => i.id === id);
-    const pendente = finance_db[idx];
-
-    let valorPago = parseFloat(prompt(`Quanto deseja pagar para ${pendente.pessoa}?\nFalta: ${formatarKz(pendente.restante)}`, pendente.restante));
-    if (isNaN(valorPago) || valorPago <= 0) return;
-
-    let dataPag = prompt("Data do pagamento (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
-    if (!dataPag) return;
-
-    // Criar um novo registo exclusivo para o histórico (Pagamento 1, 2, etc)
-    const novoHistorico = {
-        id: Date.now() + Math.random(),
-        tipo: pendente.tipo,
-        pessoa: pendente.pessoa,
-        valor: valorPago, // O valor real que saiu da carteira agora
-        data: dataPag,
-        motivo: pendente.motivo,
-        concluido: true,
-        isParcela: valorPago < pendente.restante || (pendente.valor !== pendente.restante)
-    };
-
-    finance_db.push(novoHistorico);
-
-    // Atualizar ou remover o pendente
-    if (valorPago >= pendente.restante) {
-        finance_db.splice(idx, 1); // Quitou tudo, remove dos pendentes
-    } else {
-        pendente.restante -= valorPago; // Abate o valor e continua pendente
-    }
-
-    salvarEDesenhar();
-}
-
-function estornarPagamento(id) {
-    const idx = finance_db.findIndex(i => i.id === id);
-    const itemH = finance_db[idx];
-    if (!confirm("Deseja estornar este registo do histórico? O valor voltará a ser devido.")) return;
-    
-    // Procura se o pendente original ainda existe para somar o valor de volta
-    const pendenteExistente = finance_db.find(p => p.pessoa === itemH.pessoa && p.motivo === itemH.motivo && !p.concluido);
-
-    if (pendenteExistente) {
-        pendenteExistente.restante += itemH.valor;
-    } else {
-        // Se não existir (estava quitado), recria o pendente
-        finance_db.push({
-            id: Date.now(),
-            tipo: itemH.tipo,
-            pessoa: itemH.pessoa,
-            valor: itemH.valor,
-            restante: itemH.valor,
-            data: itemH.data,
-            motivo: itemH.motivo,
-            concluido: false
+    function renderizarProdutos() {
+        const lista = document.getElementById('produtosLista');
+        lista.innerHTML = '';
+        produtos_db.forEach(p => {
+            const row = document.createElement('div');
+            row.className = 'produto-row';
+            row.id = `row-${p.id}`;
+            const isCaixa = p.tipo === 'caixa';
+            row.innerHTML = `
+                <input type="checkbox" id="chk-${p.id}" onchange="onProdutoCheck(${p.id})">
+                <span class="produto-nome">${p.nome}</span>
+                <input type="number" class="input-qtd" id="qtd-${p.id}" value="1" min="1" oninput="recalcularTotal()">
+                ${isCaixa ? `
+                    <div class="toggle-caixa">
+                        <input type="radio" name="mod-${p.id}" id="inteira-${p.id}" value="1" checked onchange="recalcularTotal()">
+                        <label for="inteira-${p.id}">Cx</label>
+                        <input type="radio" name="mod-${p.id}" id="meia-${p.id}" value="0.5" onchange="recalcularTotal()">
+                        <label for="meia-${p.id}">½</label>
+                    </div>
+                ` : `<span class="badge-unidade">Unid</span>`}
+                <input type="number" class="produto-valor-input" id="val-${p.id}" value="${p.valor}" oninput="recalcularTotal()">
+                <button class="btn-rem-produto" onclick="removerProduto(${p.id})">×</button>
+            `;
+            lista.appendChild(row);
         });
+        recalcularTotal();
     }
 
-    finance_db.splice(idx, 1); // Remove o registo do histórico
-    salvarEDesenhar();
-}
+    function onProdutoCheck(id) {
+        const row = document.getElementById(`row-${id}`);
+        const chk = document.getElementById(`chk-${id}`);
+        chk.checked ? row.classList.add('selecionado') : row.classList.remove('selecionado');
+        recalcularTotal();
+    }
 
-function eliminar(id) {
-    if(confirm("Apagar permanentemente este registo?")) {
-        finance_db = finance_db.filter(i => i.id !== id);
+    function recalcularTotal() {
+        let soma = 0;
+        produtos_db.forEach(p => {
+            const chk = document.getElementById(`chk-${p.id}`);
+            if (chk && chk.checked) {
+                const qtd = parseFloat(document.getElementById(`qtd-${p.id}`).value) || 0;
+                const val = parseFloat(document.getElementById(`val-${p.id}`).value) || 0;
+                let mult = 1;
+                if (p.tipo === 'caixa') mult = document.getElementById(`meia-${p.id}`).checked ? 0.5 : 1;
+                soma += (qtd * (val * mult));
+            }
+        });
+        const extra = parseFloat(document.getElementById('valorExtra').value) || 0;
+        const totalFinal = soma + extra;
+        document.getElementById('totalProdutos').textContent = formatarKz(totalFinal);
+        return totalFinal;
+    }
+
+    function adicionarRegisto() {
+        const total = recalcularTotal();
+        let prodSel = [];
+        produtos_db.forEach(p => {
+            const chk = document.getElementById(`chk-${p.id}`);
+            if (chk && chk.checked) {
+                const qtd = document.getElementById(`qtd-${p.id}`).value;
+                const tDesc = (p.tipo === 'caixa' && document.getElementById(`meia-${p.id}`).checked) ? "½ Cx" : (p.tipo === 'caixa' ? "Cx" : "Un");
+                prodSel.push(`${qtd}${tDesc} ${p.nome}`);
+            }
+        });
+        const mManual = document.getElementById('motivo').value.trim();
+        const mConcatenado = prodSel.join(', ') + (mManual ? " | " + mManual : "");
+
+        const item = {
+            id: Date.now(),
+            tipo: document.getElementById('tipo').value,
+            pessoa: document.getElementById('pessoa').value,
+            valor: total,
+            restante: total,
+            data: document.getElementById('data').value,
+            motivo: mConcatenado,
+            concluido: false,
+            isParcela: false
+        };
+
+        if (!item.pessoa || total <= 0) return alert("Preencha Pessoa e selecione produtos!");
+        finance_db.push(item);
+        salvarEDesenhar();
+        limparForm();
+    }
+
+    // LOGICA DE PAGAMENTO PARCELADO (ESTRUTURA DE REGISTOS INDIVIDUAIS NO HISTÓRICO)
+    function realizarPagamento(id) {
+        const idx = finance_db.findIndex(i => i.id === id);
+        const pendente = finance_db[idx];
+
+        let valorPago = parseFloat(prompt(`Quanto vai pagar de ${pendente.pessoa}?\nFalta: ${formatarKz(pendente.restante)}`, pendente.restante));
+        if (isNaN(valorPago) || valorPago <= 0) return;
+
+        let dataPag = prompt("Data do pagamento (AAAA-MM-DD):", new Date().toISOString().split('T')[0]);
+        if (!dataPag) return;
+
+        // Criar um novo registo exclusivo para o histórico (Pagamento 1, 2, etc)
+        const novoHistorico = {
+            id: Date.now() + Math.random(),
+            tipo: pendente.tipo,
+            pessoa: pendente.pessoa,
+            valor: valorPago, // O valor real que saiu da carteira agora
+            data: dataPag,
+            motivo: pendente.motivo,
+            concluido: true,
+            isParcela: valorPago < pendente.restante || (pendente.valor !== pendente.restante)
+        };
+
+        finance_db.push(novoHistorico);
+
+        // Atualizar ou remover o pendente
+        if (valorPago >= pendente.restante) {
+            finance_db.splice(idx, 1); // Quitou tudo, remove dos pendentes
+        } else {
+            pendente.restante -= valorPago; // Abate o valor e continua pendente
+        }
+
         salvarEDesenhar();
     }
-}
 
-function atualizarInterface() {
-    const mesF = document.getElementById('filtroMes').value;
-    const anoF = document.getElementById('filtroAno').value;
-    const tPendentes = document.querySelector('#tabelaPendentes tbody');
-    const tPagas = document.querySelector('#tabelaPagas tbody');
-    tPendentes.innerHTML = ''; tPagas.innerHTML = '';
-    let d = 0, r = 0;
+    function estornarPagamento(id) {
+        const idx = finance_db.findIndex(i => i.id === id);
+        const itemH = finance_db[idx];
+        if (!confirm("Deseja estornar este registo do histórico? O valor voltará a ser devido.")) return;
+        
+        // Procura se o pendente original ainda existe para somar o valor de volta
+        const pendenteExistente = finance_db.find(p => p.pessoa === itemH.pessoa && p.motivo === itemH.motivo && !p.concluido);
 
-    finance_db.forEach(item => {
-        const [ano, mes, dia] = item.data.split('-');
-        if (mesF === "todos" || (mes === mesF && ano === anoF)) {
-            const tr = document.createElement('tr');
-            if (!item.concluido) {
-                item.tipo === 'devo' ? d += item.restante : r += item.restante;
-                tr.innerHTML = `<td>${dia}/${mes}</td><td>${item.tipo}</td><td>${item.pessoa}</td><td>${item.motivo}</td><td>${formatarKz(item.valor)}</td><td style="color:red;font-weight:bold">${formatarKz(item.restante)}</td><td><button class="btn-pay" onclick="realizarPagamento(${item.id})">Pagar</button><button class="btn-del" onclick="eliminar(${item.id})">×</button></td>`;
-                tPendentes.appendChild(tr);
-            } else {
-                tr.innerHTML = `<td>${item.tipo === 'devo' ? 'Pago' : 'Recebido'}</td><td>${item.pessoa}</td><td>${item.motivo}</td><td>${formatarKz(item.valor)} ${item.isParcela ? '<span class="tag-parcela">Parcela</span>' : ''}</td><td>${dia}/${mes}/${ano}</td><td><button class="btn-del estornar" onclick="estornarPagamento(${item.id})">Estornar</button><button class="btn-del" onclick="eliminar(${item.id})">×</button></td>`;
-                tPagas.appendChild(tr);
-            }
+        if (pendenteExistente) {
+            pendenteExistente.restante += itemH.valor;
+        } else {
+            // Se não existir (estava quitado), recria o pendente
+            finance_db.push({
+                id: Date.now(),
+                tipo: itemH.tipo,
+                pessoa: itemH.pessoa,
+                valor: itemH.valor,
+                restante: itemH.valor,
+                data: itemH.data,
+                motivo: itemH.motivo,
+                concluido: false
+            });
         }
-    });
-    document.getElementById('saldoDevo').innerText = formatarKz(d);
-    document.getElementById('saldoReceber').innerText = formatarKz(r);
-}
 
-function formatarKz(n) { return n.toLocaleString('pt-AO') + " AKZ"; }
-function salvarEDesenhar() { localStorage.setItem('finance_kd_v4', JSON.stringify(finance_db)); atualizarInterface(); }
-function limparForm() { document.getElementById('pessoa').value = ''; document.getElementById('valorExtra').value = 0; document.getElementById('motivo').value = ''; renderizarProdutos(); }
-function removerProduto(id) { produtos_db = produtos_db.filter(p => p.id !== id); localStorage.setItem('produtos_yaya', JSON.stringify(produtos_db)); renderizarProdutos(); }
-function abrirModalNovoProduto() { document.getElementById('modalNovoProduto').classList.add('aberto'); }
-function fecharModal() { document.getElementById('modalNovoProduto').classList.remove('aberto'); }
-function confirmarNovoProduto() {
-    const n = document.getElementById('novoProdutoNome').value;
-    const t = document.getElementById('novoProdutoTipo').value;
-    const v = parseFloat(document.getElementById('novoProdutoValor').value);
-    if(n && v) {
-        produtos_db.push({id: Date.now(), nome: n, tipo: t, valor: v});
-        localStorage.setItem('produtos_yaya', JSON.stringify(produtos_db));
-        renderizarProdutos(); fecharModal();
+        finance_db.splice(idx, 1); // Remove o registo do histórico
+        salvarEDesenhar();
     }
-}
-function exportarParaTXT() {
-    let content = "=== RELATORIO FINANCEIRO YAYA ===\n\n";
-    finance_db.forEach(i => content += `${i.data} | ${i.pessoa} | ${i.motivo} | ${i.valor} AKZ\n`);
-    const blob = new Blob([content], {type: "text/plain"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "relatorio_yaya.txt"; a.click();
-}
 
-renderizarProdutos();
-atualizarInterface();
-</script>
-</body>
+    function eliminar(id) {
+        if(confirm("Apagar permanentemente este registo?")) {
+            finance_db = finance_db.filter(i => i.id !== id);
+            salvarEDesenhar();
+        }
+    }
+
+    function atualizarInterface() {
+        const mesF = document.getElementById('filtroMes').value;
+        const anoF = document.getElementById('filtroAno').value;
+        const tPendentes = document.querySelector('#tabelaPendentes tbody');
+        const tPagas = document.querySelector('#tabelaPagas tbody');
+        tPendentes.innerHTML = ''; tPagas.innerHTML = '';
+        let d = 0, r = 0, rr = 0;
+
+        finance_db.forEach(item => {
+            const [ano, mes, dia] = item.data.split('-');
+            if (mesF === "todos" || (mes === mesF && ano === anoF)) {
+                const tr = document.createElement('tr');
+                if (!item.concluido) {
+                    item.tipo === 'devo' ? d += item.restante : r += item.restante;
+                    tr.innerHTML = `<td>${dia}/${mes}</td><td>${item.tipo}</td><td>${item.pessoa}</td><td>${item.motivo}</td><td>${formatarKz(item.valor)}</td><td style="color:red;font-weight:bold">${formatarKz(item.restante)}</td><td><button class="btn-pay" onclick="realizarPagamento(${item.id})">Pagar</button><button class="btn-del" onclick="eliminar(${item.id})">×</button></td>`;
+                    tPendentes.appendChild(tr);
+                } else {
+                    if (item.tipo === 'receber') rr += item.valor;
+                    tr.innerHTML = `<td>${item.tipo === 'devo' ? 'Pago' : 'Recebido'}</td><td>${item.pessoa}</td><td>${item.motivo}</td><td>${formatarKz(item.valor)} ${item.isParcela ? '<span class="tag-parcela">Parcela</span>' : ''}</td><td>${dia}/${mes}/${ano}</td><td><button class="btn-del estornar" onclick="estornarPagamento(${item.id})">Estornar</button><button class="btn-del" onclick="eliminar(${item.id})">×</button></td>`;
+                    tPagas.appendChild(tr);
+                }
+            }
+        });
+        document.getElementById('saldoDevo').innerText = formatarKz(d);
+        document.getElementById('saldoReceber').innerText = formatarKz(r);
+        document.getElementById('saldoRecebido').innerText = formatarKz(rr);
+    }
+
+    function formatarKz(n) { return n.toLocaleString('pt-AO') + " AKZ"; }
+    function salvarEDesenhar() { localStorage.setItem('finance_kd_v4', JSON.stringify(finance_db)); atualizarInterface(); }
+    function limparForm() { document.getElementById('pessoa').value = ''; document.getElementById('valorExtra').value = 0; document.getElementById('motivo').value = ''; renderizarProdutos(); }
+    function removerProduto(id) { produtos_db = produtos_db.filter(p => p.id !== id); localStorage.setItem('produtos_yaya', JSON.stringify(produtos_db)); renderizarProdutos(); }
+    function abrirModalNovoProduto() { document.getElementById('modalNovoProduto').classList.add('aberto'); }
+    function fecharModal() { document.getElementById('modalNovoProduto').classList.remove('aberto'); }
+    function confirmarNovoProduto() {
+        const n = document.getElementById('novoProdutoNome').value;
+        const t = document.getElementById('novoProdutoTipo').value;
+        const v = parseFloat(document.getElementById('novoProdutoValor').value);
+        if(n && v) {
+            produtos_db.push({id: Date.now(), nome: n, tipo: t, valor: v});
+            localStorage.setItem('produtos_yaya', JSON.stringify(produtos_db));
+            renderizarProdutos(); fecharModal();
+        }
+    }
+    function exportarParaTXT() {
+        let content = "=== RELATORIO FINANCEIRO YAYA ===\n\n";
+        finance_db.forEach(i => content += `${i.data} | ${i.pessoa} | ${i.motivo} | ${i.valor} AKZ\n`);
+        const blob = new Blob([content], {type: "text/plain"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "relatorio_yaya.txt"; a.click();
+    }
+
+    renderizarProdutos();
+    atualizarInterface();
+    </script>
+    </body>
 </html>

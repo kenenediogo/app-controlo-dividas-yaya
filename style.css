@@ -8,7 +8,7 @@
 /* CONFIGURAÇÕES GERAIS DO BODY */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fonte padrão */
-    background: #f0f2f5; /* Cor de fundo da aplicação */
+    background: #253244; /* Cor de fundo da aplicação */
     color: #333; /* Cor padrão do texto */
     font-size: 14px; /* Tamanho base da fonte */
 }
@@ -85,7 +85,7 @@ body {
 /* DASHBOARD */
 .dashboard {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 colunas */
+    grid-template-columns: repeat(3, 1fr); /* 3 colunas */
     gap: 16px;
     margin-bottom: 16px;
 }
@@ -119,6 +119,11 @@ body {
 /* CARD - RECEBER */
 .card.receber {
     background: linear-gradient(135deg, #4c91f0, #0446a1);
+}
+
+/* CARD - TOTAL RECEBIDO */
+.card.recebido {
+    background: linear-gradient(135deg, #5c5b5b, #000000);
 }
 
 /* SEÇÃO DE PRODUTOS */
@@ -207,9 +212,9 @@ body {
 .toggle-caixa label {
     flex: 1;
     text-align: center;
-    padding: 5px 0;
+    padding: 2.5px 0;
     cursor: pointer;
-    background: #b1bfda;
+    background: #dcdcdd;
     font-size: 16px;
     transition: background .15s, color .15s;
     white-space: nowrap;
@@ -233,7 +238,7 @@ body {
     font-size: 11px;
     background: #e8f0fe;
     color: #4c91f0;
-    padding: 4px 10px;
+    padding: 6px 10px;
     border-radius: 6px;
     font-weight: 700;
     text-transform: uppercase;
@@ -354,6 +359,7 @@ td {
 h3 {
     margin-top: 20px;
     margin-bottom: 15px;
+    color: #fff;
 }
 
 /* BOTÕES DE AÇÃO */
@@ -403,9 +409,14 @@ h3 {
     h3 {
         font-size: 14px;
     }
+
     .dashboard {
         grid-template-columns: 1fr; /* 1 coluna */
     }
+
+    /* .badge-unidade {
+        padding: 6px 10px; 
+    } */
 
     .produto-row {
         display: grid;
@@ -453,7 +464,8 @@ h3 {
 
     .input-qtd,
     .produto-valor-input,
-    .toggle-caixa {
+    .toggle-caixa,
+    .badge-unidade {
         border-radius: 20px;
         height: 35px;
         display: flex;
